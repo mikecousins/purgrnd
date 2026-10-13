@@ -24,9 +24,6 @@ export async function readShares(request: Request): Promise<number | null> {
   return parseShares(await sharesCookie.parse(request.headers.get("Cookie")));
 }
 
-/** Set-Cookie header that stores `shares`, or clears the cookie when it's null. */
-export function writeShares(shares: number | null): Promise<string> {
-  return shares == null
-    ? sharesCookie.serialize("", { maxAge: 0 })
-    : sharesCookie.serialize(shares);
+export function writeShares(shares: number): Promise<string> {
+  return sharesCookie.serialize(shares);
 }

@@ -1,19 +1,20 @@
 # purgrnd
 
 A small web app for PurposeMed employees to see what the Grindr (`GRND`) shares they received in the
-acquisition are worth during the 12-month lockup. It shows:
+acquisition are worth. It shows:
 
 - **Original value**: shares × $15.58 (the deal's 15-day VWAP issue price, per Grindr's
   [8-K](https://www.sec.gov/Archives/edgar/data/0001820144/000182014426000033/grnd-20260930.htm))
 - **Current value**: shares × the live GRND price (Yahoo Finance, fetched server-side, refreshed every minute)
 - **Capital gain/loss**: in dollars and percent
-- A "what if" price slider, and a lockup countdown once the closing date is known
+- A "what if" price slider
 
-Per-share prices are always in USD. Totals and gain/loss are shown in CAD by default, converted at
-the live USD/CAD rate (Yahoo Finance); click one to see the original USD value and the rate. A
-CAD/USD toggle switches them back to USD.
+First-time visitors are sent to `/settings` to enter their share count and pick a currency (CAD or
+USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely on the server with
+your numbers filled in; the "what if" slider is its only client-side state.
 
-The share count and currency are saved in HTTP-only cookies, so the server renders the page with your numbers already filled in.
+Per-share prices are always in USD. In CAD, totals and gain/loss are converted at the live USD/CAD
+rate (Yahoo Finance); hover one to see the original USD value.
 
 Built with React Router (SSR), Tailwind CSS v4 and [Base UI](https://base-ui.com).
 
@@ -28,8 +29,7 @@ pnpm build
 
 ## Updating deal details
 
-Deal constants live in `app/lib/deal.ts`. When the acquisition closes, set `CLOSING_DATE`
-(`YYYY-MM-DD`) and the lockup countdown will appear.
+Deal constants live in `app/lib/deal.ts`.
 
 ## Deploying to Netlify
 

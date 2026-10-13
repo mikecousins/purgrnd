@@ -12,8 +12,46 @@
   --color-dim: #8c86a8;
   --color-glow: #fff0f8;
   --color-neon: #ff4fb0;
+  --color-neon-hover: #ff8fcd;
   --color-up: #5cf2e8;
   --color-down: #ff9147;
+
+  --radius-control: 0px;
+}
+
+/* Glows for selected controls, which the paper theme turns into drop shadows. */
+:root {
+  --glass: 85%;
+  --glow: 0 0 14px rgb(255 79 176 / 0.45);
+  --glow-strong: 0 0 14px rgb(255 79 176 / 0.8);
+}
+
+/*
+ * The paper theme: layered card-stock cut-outs of a tropical beach under a coral sunset sky. It
+ * swaps the tokens above, so the same utility classes (bg-panel, text-neon…) work in both themes.
+ */
+:root[data-theme="paper"] {
+  --font-display: "Nunito", ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Nunito", ui-rounded, ui-sans-serif, system-ui, sans-serif;
+
+  --color-void: #fffdf9;
+  --color-panel: #fff6ee;
+  --color-line: #e0604f;
+  --color-tick: #ead6ca;
+  --color-ink: #123a52;
+  --color-dim: #5c2430;
+  --color-glow: #0f3550;
+  --color-neon: #0b6b70;
+  --color-neon-hover: #0e8a8f;
+  --color-up: #03474a;
+  --color-down: #7a0f2a;
+
+  --radius-control: 10px;
+  /* Solid card: see-through panels pick up a muddy grey from the mountains behind them. */
+  --glass: 100%;
+  --sky: linear-gradient(#ffa995, #fb7d68);
+  --glow: 0 2px 6px rgb(90 25 20 / 0.3);
+  --glow-strong: 0 3px 8px rgb(90 25 20 / 0.4);
 }
 
 html,
@@ -22,11 +60,32 @@ body {
   color-scheme: dark;
 }
 
+[data-theme="paper"] {
+  color-scheme: light;
+
+  &,
+  & body {
+    background: var(--sky) fixed;
+  }
+
+  & body {
+    font-weight: 600;
+  }
+}
+
+@utility glow {
+  box-shadow: var(--glow);
+}
+
+@utility glow-strong {
+  box-shadow: var(--glow-strong);
+}
+
 .root {
   isolation: isolate;
 }
 
-/* Corners cut at 45°, the house shape for panels and buttons. */
+/* The house shape for panels and buttons: corners cut at 45°, or a rounded paper card. */
 .chamfer {
   clip-path: polygon(
     10px 0,
@@ -36,6 +95,14 @@ body {
     0 100%,
     0 10px
   );
+
+  [data-theme="paper"] & {
+    clip-path: none;
+    border-radius: 14px;
+    box-shadow:
+      0 1px 2px rgb(90 25 20 / 0.2),
+      0 8px 20px -6px rgb(90 25 20 / 0.45);
+  }
 }
 
 /* A neon-tube glow for the hero number. */
@@ -44,6 +111,14 @@ body {
     0 0 18px rgb(255 79 176 / 0.55),
     0 0 60px rgb(255 79 176 / 0.55),
     0 0 120px rgb(255 79 176 / 0.55);
+
+  /* In paper, the number is cut from card and lifted off the sky. */
+  [data-theme="paper"] & {
+    font-weight: 900;
+    text-shadow:
+      0 1px 1px rgb(90 25 20 / 0.35),
+      0 6px 14px rgb(90 25 20 / 0.35);
+  }
 }
 
 /*
@@ -118,9 +193,54 @@ body {
   }
 }
 
+/* The paper beach: sea bands rocking on the swell, and a boat drifting and bobbing. */
+.swell {
+  animation: swell 7s ease-in-out infinite alternate;
+}
+
+@keyframes swell {
+  from {
+    transform: translate(-24px, -2px);
+  }
+  to {
+    transform: translate(24px, 3px);
+  }
+}
+
+.drift {
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(60px);
+  }
+}
+
+.bob {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: bob 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(-2px) rotate(-3deg);
+  }
+  to {
+    transform: translateY(3px) rotate(3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .synth-floor::before,
-  .pulse {
+  .pulse,
+  .swell,
+  .drift,
+  .bob {
     animation: none;
   }
 }

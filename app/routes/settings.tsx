@@ -4,16 +4,19 @@ import { CURRENCIES, parseCurrency } from "~/lib/currency";
 import { readCurrency, writeCurrency } from "~/lib/currency-cookie.server";
 import { TICKER, TOTAL_DEAL_SHARES } from "~/lib/deal";
 import { formatShares } from "~/lib/format";
+import { shareMeta, SITE_TITLE } from "~/lib/share-meta";
 import { parseShares, readShares, writeShares } from "~/lib/shares-cookie.server";
 import type { Route } from "./+types/settings";
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: "Settings · GRND Share Value" }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  // First-time visitors, and link-preview crawlers, land here before there's anything to set.
+  const title = loaderData.shares == null ? SITE_TITLE : `Settings · ${SITE_TITLE}`;
+  return [{ title }, ...shareMeta(loaderData.origin)];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [shares, currency] = await Promise.all([readShares(request), readCurrency(request)]);
-  return { shares, currency };
+  return { origin: new URL(request.url).origin, shares, currency };
 }
 
 export async function action({ request }: Route.ActionArgs) {

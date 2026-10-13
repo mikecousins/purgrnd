@@ -3,7 +3,7 @@
 A small web app for PurposeMed employees to see what the Grindr (`GRND`) shares they received in the
 acquisition are worth. It shows:
 
-- **Original value**: shares × $15.58 (the deal's 15-day VWAP issue price, per Grindr's
+- **Cost base**: shares × $15.58 (the deal's 15-day VWAP issue price, per Grindr's
   [8-K](https://www.sec.gov/Archives/edgar/data/0001820144/000182014426000033/grnd-20260930.htm))
 - **Current value**: shares × the live GRND price (Yahoo Finance, fetched server-side, refreshed every minute)
 - **Capital gain/loss**: in dollars and percent
@@ -13,8 +13,11 @@ First-time visitors are sent to `/settings` to enter their share count and pick 
 USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely on the server with
 your numbers filled in; the "what if" slider is its only client-side state.
 
-Per-share prices are always in USD. In CAD, totals and gain/loss are converted at the live USD/CAD
-rate (Yahoo Finance); hover one to see the original USD value.
+Per-share prices are always in USD. In CAD, the gain/loss is worked out the way Canadian tax does it:
+the cost base is converted at the Bank of Canada USD/CAD rate on the closing date and stays fixed,
+while the current value is converted at today's rate (Yahoo Finance). So the CAD gain moves with the
+exchange rate as well as with GRND, and the "what if" section shows how much of it came from each.
+Hover a total to see the USD amount behind it.
 
 Built with React Router (SSR), Tailwind CSS v4 and [Base UI](https://base-ui.com).
 
@@ -29,7 +32,10 @@ pnpm build
 
 ## Updating deal details
 
-Deal constants live in `app/lib/deal.ts`.
+Deal constants live in `app/lib/deal.ts`. When the deal closes, set `CLOSING_DATE` and
+`CLOSING_USD_CAD` (the [Bank of Canada rate](https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/)
+for that day). Until then, the CAD cost base is estimated at today's rate, and the lock-up end date
+isn't shown.
 
 ## Deploying to Netlify
 

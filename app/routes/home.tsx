@@ -1,5 +1,5 @@
 import { Slider } from "@base-ui/react/slider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, redirect } from "react-router";
 
 import { PaperScenery } from "~/components/paper-scenery";
@@ -11,11 +11,14 @@ import {
   CLOSING_USD_CAD,
   ISSUE_PRICE_USD,
   lockupEndDate,
+  lockupEndTime,
+  LOCKUP_MONTHS,
   SEC_FILING_URL,
   TICKER,
 } from "~/lib/deal";
 import {
   formatAsOf,
+  formatCountdown,
   formatDate,
   formatMoney,
   formatMoneyWhole,
@@ -75,6 +78,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     costRate,
     closed: CLOSING_DATE != null && CLOSING_USD_CAD != null,
     lockupEnd: lockupEnd && formatDate(lockupEnd),
+    lockupEndTime: lockupEndTime(),
+    renderedAt: Date.now(),
     cadUnavailable: savedCurrency === "CAD" && usdCad == null,
     livePrice: quote?.price ?? null,
     quote: quote && {
@@ -109,6 +114,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     costRate,
     closed,
     lockupEnd,
+    lockupEndTime,
+    renderedAt,
     cadUnavailable,
     livePrice,
     quote,
@@ -149,8 +156,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <Logo />
             PURGRND
           </p>
-          {/* On a phone the ticker drops to its own row, under the logo and settings. */}
-          <div className="max-sm:order-last max-sm:basis-full">
+          {/* On a phone the countdown and ticker drop to their own row, under the logo and settings. */}
+          <div className="flex flex-wrap gap-3 max-sm:order-last max-sm:basis-full">
+            <LockupCountdown endsAt={lockupEndTime} endDate={lockupEnd} renderedAt={renderedAt} />
             {quote ? (
               <p
                 title={`As of ${quote.asOf} · Yahoo Finance`}
@@ -263,6 +271,46 @@ function Stat({
       </dd>
       {hint && <dd className={`text-[13px] tabular-nums ${toneClass(tone)}`}>{hint}</dd>}
     </div>
+  );
+}
+
+/** Counts down to the day the lock-up ends and the shares can be sold. */
+function LockupCountdown({
+  endsAt,
+  endDate,
+  renderedAt,
+}: {
+  endsAt: number | null;
+  endDate: string | null;
+  renderedAt: number;
+}) {
+  // Start from the server's clock so hydration matches, then tick with the browser's.
+  const [now, setNow] = useState(renderedAt);
+  useEffect(() => {
+    if (endsAt == null) return;
+    const tick = () => setNow(Date.now());
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [endsAt]);
+
+  const pill = "chamfer flex h-11 items-center gap-3 bg-panel px-4 text-sm tracking-wider";
+
+  if (endsAt == null) {
+    return (
+      <p className={`${pill} text-dim uppercase`}>Sellable {LOCKUP_MONTHS} mo after closing</p>
+    );
+  }
+  if (now >= endsAt) {
+    return <p className={`${pill} text-up uppercase`}>Lock-up over · sellable now</p>;
+  }
+  return (
+    <p title={`Lock-up ends ${endDate}`} className={pill}>
+      <span className="text-dim uppercase">Sellable in</span>
+      <span className="font-display text-[17px] font-semibold text-neon tabular-nums">
+        {formatCountdown(endsAt - now)}
+      </span>
+    </p>
   );
 }
 

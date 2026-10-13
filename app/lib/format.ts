@@ -57,3 +57,11 @@ export const formatPctSigned = (n: number) => pctSigned.format(n);
 export const formatShares = (n: number) => shareCount.format(n);
 export const formatAsOf = (epochMs: number) => asOf.format(epochMs);
 export const formatDate = (d: Date) => date.format(d);
+/** Time left as "352d 04:12:09". */
+export const formatCountdown = (ms: number) => {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const days = Math.floor(total / 86_400);
+  const clock = `${pad(Math.floor(total / 3600) % 24)}:${pad(Math.floor(total / 60) % 60)}:${pad(total % 60)}`;
+  return days > 0 ? `${days}d ${clock}` : clock;
+};

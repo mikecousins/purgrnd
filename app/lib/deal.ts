@@ -31,6 +31,25 @@ export function lockupEndDate(): Date | null {
   return date;
 }
 
+/** GRND trades on the NYSE, so the lock-up ends at midnight New York time. */
+const MARKET_TIME_ZONE = "America/New_York";
+
+/** The moment the shares can be sold (epoch ms), or null while the deal is pending. */
+export function lockupEndTime(): number | null {
+  const date = lockupEndDate();
+  if (date == null) return null;
+  // New York's UTC offset that night, e.g. "GMT-04:00".
+  const offset = new Intl.DateTimeFormat("en-US", {
+    timeZone: MARKET_TIME_ZONE,
+    timeZoneName: "longOffset",
+  })
+    .formatToParts(date)
+    .find((part) => part.type === "timeZoneName")?.value;
+  const [, sign = "+", hours = "0", minutes = "0"] = /([+-])(\d+):(\d+)/.exec(offset ?? "") ?? [];
+  const offsetMs = (Number(hours) * 60 + Number(minutes)) * 60_000 * (sign === "-" ? -1 : 1);
+  return date.getTime() - offsetMs;
+}
+
 export type Position = {
   /** What the shares cost: shares × issue price, converted at the closing rate. */
   costBase: number;

@@ -9,6 +9,8 @@ acquisition are worth. It's one full-screen, retro-futuristic dashboard showing:
   [8-K](https://www.sec.gov/Archives/edgar/data/0001820144/000182014426000033/grnd-20260930.htm))
 - **Capital gain/loss**: in dollars and percent
 - A "what if" price slider
+- A countdown to the day the shares can be sold: the 12-month lock-up runs from the closing date, and
+  the countdown ticks to midnight New York time (GRND trades on the NYSE) that day
 
 First-time visitors are sent to `/settings` to enter their share count and pick a currency (CAD or
 USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely on the server with
@@ -41,8 +43,8 @@ pnpm build
 
 Deal constants live in `app/lib/deal.ts`. When the deal closes, set `CLOSING_DATE` and
 `CLOSING_USD_CAD` (the [Bank of Canada rate](https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/)
-for that day). Until then, the CAD cost base is estimated at today's rate, and the lock-up end date
-isn't shown.
+for that day). Until then, the CAD cost base is estimated at today's rate, the lock-up end date
+isn't shown, and the countdown just says the shares are sellable 12 months after closing.
 
 ## Deploying to Netlify
 

@@ -15,7 +15,7 @@ USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely
 your numbers filled in; the "what if" slider is its only client-side state.
 
 Settings also has a theme picker: the default neon **Synthwave** look, or **Paper**, a layered
-paper-cutout landscape (coral sky, snow-capped mountains, teal hills). Picking one previews it
+paper-cutout tropical beach (sunset sky, layered sea, sand and palms). Picking one previews it
 straight away, and saving stores it in a cookie alongside the others, so the right theme is
 server-rendered on the next visit with no flash.
 

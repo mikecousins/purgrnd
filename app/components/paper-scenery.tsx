@@ -1,15 +1,14 @@
 /**
- * The paper theme's backdrop: cut-paper clouds along the top, soft bands across the sky, and
- * snow-capped mountains and rolling hills along the bottom, each layer casting a shadow on the
- * one behind it.
+ * The paper theme's backdrop: a sunset sky with soft bands and gulls, and along the bottom a
+ * tropical beach (a setting sun, layered sea, foam, sand and palms), each layer casting a shadow
+ * on the one behind it.
  */
-export function PaperScenery({ landscape = true }: { landscape?: boolean }) {
+export function PaperScenery({ beach = true }: { beach?: boolean }) {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0">
       <Sky />
       <Birds />
-      <Clouds />
-      {landscape && <Landscape />}
+      {beach && <Beach />}
     </div>
   );
 }
@@ -66,87 +65,8 @@ function Birds() {
   );
 }
 
-// Each cloud bank is a row of overlapping circles hanging from the top edge. The SVG is anchored at
-// its bottom, so on a wide screen it's the solid top that gets cropped, never the scalloped edge.
-const BACK_CLOUDS: [number, number, number][] = [
-  [40, 60, 85],
-  [170, 80, 75],
-  [300, 50, 90],
-  [430, 85, 75],
-  [560, 60, 85],
-  [690, 90, 72],
-  [820, 55, 90],
-  [950, 82, 75],
-  [1080, 60, 85],
-  [1210, 88, 74],
-  [1340, 55, 88],
-  [1470, 82, 76],
-  [1590, 60, 85],
-];
-const FRONT_CLOUDS: [number, number, number][] = [
-  [-10, 40, 70],
-  [100, 55, 60],
-  [210, 30, 70],
-  [330, 60, 62],
-  [450, 35, 70],
-  [575, 58, 60],
-  [700, 30, 72],
-  [830, 55, 60],
-  [950, 38, 70],
-  [1070, 60, 62],
-  [1190, 32, 70],
-  [1310, 56, 60],
-  [1430, 36, 70],
-  [1550, 55, 62],
-  [1640, 35, 70],
-];
-
-function Clouds() {
-  return (
-    <svg
-      viewBox="0 0 1600 200"
-      preserveAspectRatio="xMidYMax slice"
-      className="absolute inset-x-0 top-0 h-[clamp(64px,13vh,140px)] w-full"
-    >
-      <defs>
-        <PaperShadow id="cloud-shadow" dy={6} blur={7} opacity={0.3} />
-      </defs>
-      <g filter="url(#cloud-shadow)" fill="#e9e3e1">
-        {BACK_CLOUDS.map(([cx, cy, r]) => (
-          <circle key={cx} cx={cx} cy={cy} r={r} />
-        ))}
-      </g>
-      <g filter="url(#cloud-shadow)" fill="#f8f5f3">
-        <rect width="1600" height="100" />
-        {FRONT_CLOUDS.map(([cx, cy, r]) => (
-          <circle key={cx} cx={cx} cy={cy} r={r} />
-        ))}
-      </g>
-    </svg>
-  );
-}
-
-// [x, peak, half-width, snow depth]. The art is extra wide so a wide, short screen crops its sides
-// rather than the mountain tops.
-type Peak = [number, number, number, number?];
-const FAR_PEAKS: Peak[] = [
-  [150, 110, 200],
-  [630, 40, 210, 70],
-  [960, 95, 190, 55],
-  [1340, 150, 230],
-  [1730, 60, 230, 65],
-  [1960, 130, 170],
-  [2250, 70, 220, 60],
-];
-const NEAR_PEAKS: Peak[] = [
-  [300, 180, 180],
-  [460, 170, 170],
-  [1180, 150, 180, 40],
-  [1530, 185, 200],
-  [2100, 175, 190],
-];
-
-function Landscape() {
+// The art is extra wide so a wide, short screen crops its sides rather than the sun and the sails.
+function Beach() {
   return (
     <svg
       viewBox="0 0 2400 420"
@@ -154,150 +74,154 @@ function Landscape() {
       className="absolute inset-x-0 bottom-0 h-[clamp(150px,34vh,400px)] w-full max-sm:h-[46vh]"
     >
       <defs>
-        <PaperShadow id="land-shadow" dy={-4} blur={7} opacity={0.3} />
+        <PaperShadow id="beach-shadow" dy={-4} blur={7} opacity={0.3} />
       </defs>
 
-      <g filter="url(#land-shadow)">
-        {FAR_PEAKS.map(([x, peak, width, snow]) => (
-          <Mountain
-            key={x}
-            x={x}
-            peak={peak}
-            base={330}
-            width={width}
-            snow={snow}
-            fill="#0c3c58"
-            shade="#082f47"
-          />
-        ))}
+      {/* The sun, setting behind the sea. */}
+      <g filter="url(#beach-shadow)">
+        <circle cx={1750} cy={125} r={120} fill="#ffb497" />
+        <circle cx={1750} cy={125} r={92} fill="#ffc99f" />
+        <circle cx={1750} cy={125} r={66} fill="#ffe4b0" />
       </g>
 
-      <g filter="url(#land-shadow)">
-        {NEAR_PEAKS.map(([x, peak, width, snow]) => (
-          <Mountain
-            key={x}
-            x={x}
-            peak={peak}
-            base={340}
-            width={width}
-            snow={snow}
-            fill="#0f5573"
-            shade="#0b4660"
-          />
-        ))}
+      <g filter="url(#beach-shadow)">
+        <rect y={120} width={2400} height={300} fill="#0d6f86" />
+        <Sailboat x={1150} y={124} />
+      </g>
+      <Layer
+        d="M0 165 C 300 150 600 175 900 162 S 1500 150 1800 165 S 2250 172 2400 160"
+        fill="#148fa3"
+      />
+      <Layer
+        d="M0 215 C 350 198 700 222 1050 208 S 1700 198 2000 214 S 2300 220 2400 206"
+        fill="#22b5bd"
+      />
+      <Layer d="M0 262 C 400 245 800 268 1200 252 S 1900 245 2400 258" fill="#4fd1c5" />
+      {/* Foam: a white band that the sand covers all but the edge of. */}
+      <Layer d="M0 285 C 400 270 800 292 1200 278 S 1900 270 2400 282" fill="#fff6ee" />
+      <Layer d="M0 300 C 400 288 800 306 1200 294 S 1900 288 2400 298" fill="#f2c98a" />
+
+      <g filter="url(#beach-shadow)">
+        <Palm x={330} base={350} height={260} lean={70} />
+        <Palm x={540} base={362} height={190} lean={-45} />
+        <Palm x={2060} base={352} height={250} lean={-75} />
+        <Palm x={2230} base={345} height={185} lean={40} />
       </g>
 
-      <g filter="url(#land-shadow)" fill="#0f7476">
-        <path d="M0 300 C 250 270 480 285 700 300 S 1150 270 1400 285 S 1850 300 2100 285 S 2350 290 2400 295 V420 H0 Z" />
-        <Pine x={240} base={296} height={110} />
-        <Pine x={780} base={300} height={150} />
-        <Pine x={1585} base={290} height={95} />
-        <Pine x={1640} base={292} height={120} />
-        <House x={1780} base={292} />
-        <Poplar x={1900} base={295} height={120} />
-        <Poplar x={1945} base={298} height={90} />
-        <Pine x={2230} base={288} height={130} />
-      </g>
-
-      <g filter="url(#land-shadow)">
-        <path
-          d="M0 340 C 300 315 600 318 900 335 S 1450 320 1700 330 S 2200 345 2400 335 V420 H0 Z"
-          fill="#17b7a6"
-        />
-      </g>
-
-      <g filter="url(#land-shadow)">
-        <path
-          d="M0 375 C 350 355 750 365 1100 380 S 1800 360 2100 372 S 2350 378 2400 374 V420 H0 Z"
-          fill="#1ed3bf"
-        />
+      <Layer
+        d="M0 360 C 300 340 700 352 1000 366 S 1700 345 2000 358 S 2300 366 2400 355"
+        fill="#f8dcab"
+      />
+      <g filter="url(#beach-shadow)">
+        <Starfish x={760} y={392} />
+        <Shell x={1700} y={395} />
       </g>
     </svg>
   );
 }
 
-/** A mountain with a darker right face and, optionally, a jagged snow cap `snow` units deep. */
-function Mountain({
+/** A band of sea or sand: the wavy top edge `d`, filled down to the bottom of the scene. */
+function Layer({ d, fill }: { d: string; fill: string }) {
+  return <path d={`${d} V420 H0 Z`} fill={fill} filter="url(#beach-shadow)" />;
+}
+
+function Sailboat({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <polygon points={`${x},${y - 66} ${x},${y - 4} ${x + 44},${y - 4}`} fill="#fff6ee" />
+      <polygon points={`${x - 5},${y - 52} ${x - 5},${y - 4} ${x - 34},${y - 4}`} fill="#ffd9b0" />
+      <polygon
+        points={`${x - 42},${y} ${x + 50},${y} ${x + 38},${y + 16} ${x - 30},${y + 16}`}
+        fill="#123a52"
+      />
+    </g>
+  );
+}
+
+// Fronds as [dx, dy] from the crown to the leaf tip, before scaling.
+const FRONDS: [number, number][] = [
+  [-150, 45],
+  [-125, -25],
+  [-55, -72],
+  [35, -78],
+  [115, -35],
+  [150, 40],
+  [-85, 85],
+  [80, 88],
+];
+
+/** A palm: a curved, banded trunk and a crown of arching fronds. */
+function Palm({
   x,
-  peak,
   base,
-  width,
-  fill,
-  shade,
-  snow,
+  height,
+  lean,
 }: {
   x: number;
-  peak: number;
   base: number;
-  width: number;
-  fill: string;
-  shade: string;
-  snow?: number;
+  height: number;
+  lean: number;
 }) {
-  const left = x - width;
-  const right = x + width;
-  // Where the snow line meets each side.
-  const half = snow ? (width * snow) / (base - peak) : 0;
-  const snowLine = peak + (snow ?? 0);
-  const cap = [
-    [x, peak],
-    [x - half, snowLine],
-    [x - half / 2, snowLine - (snow ?? 0) * 0.25],
-    [x - half / 6, snowLine + (snow ?? 0) * 0.15],
-    [x + half / 4, snowLine - (snow ?? 0) * 0.2],
-    [x + half / 1.7, snowLine + (snow ?? 0) * 0.1],
-    [x + half, snowLine],
-  ];
+  const crownX = x + lean;
+  const crownY = base - height;
+  const trunk = `M${x} ${base} Q ${x + lean * 0.1} ${base - height * 0.55} ${crownX} ${crownY}`;
+  const scale = height / 250;
 
   return (
     <g>
-      <polygon points={`${x},${peak} ${right},${base} ${left},${base}`} fill={fill} />
-      <polygon points={`${x},${peak} ${right},${base} ${x + width * 0.15},${base}`} fill={shade} />
-      {snow && <polygon points={cap.map((p) => p.join(",")).join(" ")} fill="#f8f5f3" />}
-    </g>
-  );
-}
-
-/** A pine tree: three stacked tiers on a trunk. */
-function Pine({ x, base, height }: { x: number; base: number; height: number }) {
-  const w = height * 0.32;
-  const tier = (top: number, bottom: number, spread: number) =>
-    `${x},${base - height * top} ${x + w * spread},${base - height * bottom} ${x - w * spread},${base - height * bottom}`;
-  return (
-    <g>
-      <rect x={x - w * 0.1} y={base - height * 0.15} width={w * 0.2} height={height * 0.15} />
-      <polygon points={tier(0.55, 0.12, 1)} />
-      <polygon points={tier(0.8, 0.35, 0.8)} />
-      <polygon points={tier(1, 0.6, 0.6)} />
-    </g>
-  );
-}
-
-/** A tall, rounded poplar on a thin trunk. */
-function Poplar({ x, base, height }: { x: number; base: number; height: number }) {
-  const w = height * 0.3;
-  return (
-    <g fill="#0c3c58">
-      <rect x={x - 3} y={base - height * 0.25} width={6} height={height * 0.25} />
-      <rect x={x - w / 2} y={base - height} width={w} height={height * 0.8} rx={w / 2} />
-    </g>
-  );
-}
-
-/** A little barn with a round window and a door. */
-function House({ x, base }: { x: number; base: number }) {
-  return (
-    <g>
-      <polygon
-        points={`${x - 50},${base - 50} ${x},${base - 88} ${x + 70},${base - 88} ${x + 95},${base - 50} ${x + 95},${base} ${x - 50},${base}`}
-        fill="#0c3c58"
+      <path d={trunk} fill="none" stroke="#8a5a36" strokeWidth={16 * scale} strokeLinecap="round" />
+      <path
+        d={trunk}
+        fill="none"
+        stroke="#6d4527"
+        strokeWidth={16 * scale}
+        strokeDasharray={`${4 * scale} ${14 * scale}`}
       />
-      <polygon
-        points={`${x - 50},${base - 50} ${x},${base - 88} ${x + 50},${base - 50} ${x + 50},${base} ${x - 50},${base}`}
-        fill="#0f5573"
+      {FRONDS.map(([dx, dy], i) => (
+        <path
+          key={i}
+          d={frond(crownX, crownY, dx * scale, dy * scale, 34 * scale, 24 * scale)}
+          fill={i % 2 ? "#0f6b5c" : "#13896d"}
+        />
+      ))}
+      <circle cx={crownX - 6 * scale} cy={crownY + 8 * scale} r={8 * scale} fill="#5b3a22" />
+      <circle cx={crownX + 8 * scale} cy={crownY + 10 * scale} r={8 * scale} fill="#5b3a22" />
+    </g>
+  );
+}
+
+/** A crescent leaf from (x, y) to (x + dx, y + dy), arching upward by `bend` and `width` thick. */
+function frond(x: number, y: number, dx: number, dy: number, bend: number, width: number) {
+  const length = Math.hypot(dx, dy);
+  // The unit normal that points up the screen, so every frond arches before it droops.
+  let nx = -dy / length;
+  let ny = dx / length;
+  if (ny > 0) [nx, ny] = [-nx, -ny];
+  const mx = x + dx / 2;
+  const my = y + dy / 2;
+  const outer = `${mx + nx * bend} ${my + ny * bend}`;
+  const inner = `${mx + nx * (bend - width)} ${my + ny * (bend - width)}`;
+  return `M${x} ${y} Q ${outer} ${x + dx} ${y + dy} Q ${inner} ${x} ${y} Z`;
+}
+
+function Starfish({ x, y }: { x: number; y: number }) {
+  const points = Array.from({ length: 10 }, (_, i) => {
+    const r = i % 2 ? 7 : 18;
+    const a = (Math.PI / 5) * i - Math.PI / 2;
+    return `${x + r * Math.cos(a)},${y + r * Math.sin(a)}`;
+  });
+  return <polygon points={points.join(" ")} fill="#f2826b" />;
+}
+
+function Shell({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <path d={`M${x - 16} ${y + 6} A 16 16 0 0 1 ${x + 16} ${y + 6} Z`} fill="#fff6ee" />
+      <path
+        d={`M${x} ${y + 6} L${x} ${y - 9} M${x} ${y + 6} L${x - 9} ${y - 5} M${x} ${y + 6} L${x + 9} ${y - 5}`}
+        stroke="#e9b98a"
+        strokeWidth={2}
       />
-      <circle cx={x} cy={base - 55} r={7} fill="#fb7d68" />
-      <rect x={x - 10} y={base - 30} width={20} height={30} fill="#fb7d68" />
     </g>
   );
 }

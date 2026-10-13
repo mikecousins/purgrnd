@@ -27,7 +27,7 @@
 }
 
 /*
- * The paper theme: layered card-stock cut-outs, a coral sky, navy mountains and teal hills. It
+ * The paper theme: layered card-stock cut-outs of a tropical beach under a coral sunset sky. It
  * swaps the tokens above, so the same utility classes (bg-panel, text-neon…) work in both themes.
  */
 :root[data-theme="paper"] {

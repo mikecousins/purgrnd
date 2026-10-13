@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 /**
  * The paper theme's backdrop: a sunset sky with soft bands and gulls, and along the bottom a
  * tropical beach (a setting sun, layered sea, foam, sand and palms), each layer casting a shadow
@@ -86,19 +88,35 @@ function Beach() {
 
       <g filter="url(#beach-shadow)">
         <rect y={120} width={2400} height={300} fill="#0d6f86" />
-        <Sailboat x={1150} y={124} />
+        {/* The boat drifts slowly along the horizon, rocking as it goes. */}
+        <g className="drift">
+          <g className="bob">
+            <Sailboat x={1150} y={124} />
+          </g>
+        </g>
       </g>
+      {/* Each sea band rocks on its own swell, out of step with the others. */}
       <Layer
         d="M0 165 C 300 150 600 175 900 162 S 1500 150 1800 165 S 2250 172 2400 160"
         fill="#148fa3"
+        swell={{ animationDuration: "9s" }}
       />
       <Layer
         d="M0 215 C 350 198 700 222 1050 208 S 1700 198 2000 214 S 2300 220 2400 206"
         fill="#22b5bd"
+        swell={{ animationDuration: "7s", animationDelay: "-3s" }}
       />
-      <Layer d="M0 262 C 400 245 800 268 1200 252 S 1900 245 2400 258" fill="#4fd1c5" />
-      {/* Foam: a white band that the sand covers all but the edge of. */}
-      <Layer d="M0 285 C 400 270 800 292 1200 278 S 1900 270 2400 282" fill="#fff6ee" />
+      <Layer
+        d="M0 262 C 400 245 800 268 1200 252 S 1900 245 2400 258"
+        fill="#4fd1c5"
+        swell={{ animationDuration: "6s", animationDelay: "-1s" }}
+      />
+      {/* Foam: a white band that the sand covers all but the edge of, so as it rocks it laps the shore. */}
+      <Layer
+        d="M0 285 C 400 270 800 292 1200 278 S 1900 270 2400 282"
+        fill="#fff6ee"
+        swell={{ animationDuration: "4s", animationDelay: "-2s" }}
+      />
       <Layer d="M0 300 C 400 288 800 306 1200 294 S 1900 288 2400 298" fill="#f2c98a" />
 
       <g filter="url(#beach-shadow)">
@@ -120,9 +138,21 @@ function Beach() {
   );
 }
 
-/** A band of sea or sand: the wavy top edge `d`, filled down to the bottom of the scene. */
-function Layer({ d, fill }: { d: string; fill: string }) {
-  return <path d={`${d} V420 H0 Z`} fill={fill} filter="url(#beach-shadow)" />;
+/**
+ * A band of sea or sand: the wavy top edge `d` (from x = 0 to 2400), filled down to the bottom of
+ * the scene. It runs on past both sides so a band can rock sideways without showing its ends;
+ * `swell` sets the timing of that rocking, and leaving it out keeps the band still.
+ */
+function Layer({ d, fill, swell }: { d: string; fill: string; swell?: CSSProperties }) {
+  return (
+    <path
+      d={`${d.replace(/^M0 /, "M-60 ")} H2460 V420 H-60 Z`}
+      fill={fill}
+      filter="url(#beach-shadow)"
+      className={swell && "swell"}
+      style={swell}
+    />
+  );
 }
 
 function Sailboat({ x, y }: { x: number; y: number }) {

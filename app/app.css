@@ -193,9 +193,54 @@ body {
   }
 }
 
+/* The paper beach: sea bands rocking on the swell, and a boat drifting and bobbing. */
+.swell {
+  animation: swell 7s ease-in-out infinite alternate;
+}
+
+@keyframes swell {
+  from {
+    transform: translate(-24px, -2px);
+  }
+  to {
+    transform: translate(24px, 3px);
+  }
+}
+
+.drift {
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(60px);
+  }
+}
+
+.bob {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: bob 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(-2px) rotate(-3deg);
+  }
+  to {
+    transform: translateY(3px) rotate(3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .synth-floor::before,
-  .pulse {
+  .pulse,
+  .swell,
+  .drift,
+  .bob {
     animation: none;
   }
 }

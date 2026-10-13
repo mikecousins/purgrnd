@@ -9,7 +9,7 @@ acquisition are worth during the 12-month lockup. It shows:
 - **Capital gain/loss**: in dollars and percent
 - A "what if" price slider, and a lockup countdown once the closing date is known
 
-The share count is stored only in the browser's `localStorage`.
+The share count is saved in an HTTP-only cookie, so the server renders the page with your numbers already filled in.
 
 Built with React Router (SSR), Tailwind CSS v4 and [Base UI](https://base-ui.com).
 

@@ -2,8 +2,8 @@ import { Accordion } from "@base-ui/react/accordion";
 import { NumberField } from "@base-ui/react/number-field";
 import { Progress } from "@base-ui/react/progress";
 import { Slider } from "@base-ui/react/slider";
-import { useEffect, useId, useState } from "react";
-import { useRevalidator } from "react-router";
+import { useEffect, useId, useRef, useState } from "react";
+import { data, type ShouldRevalidateFunction, useFetcher, useRevalidator } from "react-router";
 
 import {
   calculatePosition,
@@ -12,13 +12,20 @@ import {
   LOCKUP_MONTHS,
   SEC_FILING_URL,
   TICKER,
+  TOTAL_DEAL_SHARES,
 } from "~/lib/deal";
 import { formatDate, formatPctSigned, formatUsd, formatUsdSigned } from "~/lib/format";
 import { getQuote } from "~/lib/quote.server";
+import {
+  parseShares,
+  readShares,
+  SHARES_COOKIE_NAME,
+  writeShares,
+} from "~/lib/shares-cookie.server";
 import type { Route } from "./+types/home";
 
-const SHARES_STORAGE_KEY = "purgrnd:shares";
 const REFRESH_MS = 60_000;
+const SAVE_DEBOUNCE_MS = 400;
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -34,12 +41,28 @@ export function headers() {
   return {
     "Cache-Control": "public, max-age=0, must-revalidate",
     "Netlify-CDN-Cache-Control": "public, durable, s-maxage=60, stale-while-revalidate=300",
+    // The page is rendered with the visitor's share count, so key the CDN cache on that cookie.
+    "Netlify-Vary": `cookie=${SHARES_COOKIE_NAME}`,
   };
 }
 
-export async function loader() {
-  return { quote: await getQuote() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const [quote, shares] = await Promise.all([getQuote(), readShares(request)]);
+  return { quote, shares };
 }
+
+export async function action({ request }: Route.ActionArgs) {
+  const shares = parseShares((await request.formData()).get("shares"));
+  return data(null, { headers: { "Set-Cookie": await writeShares(shares) } });
+}
+
+// Saving the share count changes nothing the loader returns, so skip the refetch.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  formMethod,
+  defaultShouldRevalidate,
+}) => {
+  return formMethod === "POST" ? false : defaultShouldRevalidate;
+};
 
 const asOfFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -50,29 +73,23 @@ const asOfFormat = new Intl.DateTimeFormat("en-US", {
   timeZoneName: "short",
 });
 
-function useStoredShares() {
-  const [shares, setShares] = useState<number | null>(null);
-  const [loaded, setLoaded] = useState(false);
+/** Share count as local state, persisted to the cookie (debounced) via the route action. */
+function useSavedShares(initial: number | null) {
+  const [shares, setShares] = useState(initial);
+  const fetcher = useFetcher();
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  useEffect(() => {
-    try {
-      const stored = Number(localStorage.getItem(SHARES_STORAGE_KEY));
-      if (stored > 0) setShares(stored);
-    } catch {
-      // Storage unavailable (private mode etc.) — just don't persist.
-    }
-    setLoaded(true);
-  }, []);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   const update = (value: number | null) => {
     setShares(value);
-    try {
-      if (value && value > 0) localStorage.setItem(SHARES_STORAGE_KEY, String(value));
-      else localStorage.removeItem(SHARES_STORAGE_KEY);
-    } catch {}
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      fetcher.submit({ shares: value ?? "" }, { method: "post" });
+    }, SAVE_DEBOUNCE_MS);
   };
 
-  return [shares, update, loaded] as const;
+  return [shares, update] as const;
 }
 
 function useAutoRefresh() {
@@ -90,7 +107,7 @@ function useAutoRefresh() {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { quote } = loaderData;
-  const [shares, setShares, loaded] = useStoredShares();
+  const [shares, setShares] = useSavedShares(loaderData.shares);
   const revalidator = useAutoRefresh();
   const [whatIfPrice, setWhatIfPrice] = useState<number | null>(null);
 
@@ -124,7 +141,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       />
 
       <section className="flex flex-col gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <SharesField value={shares} onChange={setShares} disabled={!loaded} />
+        <SharesField value={shares} onChange={setShares} />
 
         <dl className="grid gap-4 sm:grid-cols-3">
           <Stat
@@ -161,7 +178,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       <footer className="text-xs text-neutral-500">
         Prices are delayed and in USD. For information only — not financial or tax advice. Your
-        share count is stored only in this browser.
+        share count is saved in a cookie in this browser.
       </footer>
     </main>
   );
@@ -216,11 +233,9 @@ const stepperClass =
 function SharesField({
   value,
   onChange,
-  disabled,
 }: {
   value: number | null;
   onChange: (value: number | null) => void;
-  disabled: boolean;
 }) {
   const id = useId();
   return (
@@ -229,10 +244,10 @@ function SharesField({
       value={value}
       onValueChange={(next) => onChange(next != null ? Math.floor(next) : null)}
       min={0}
+      max={TOTAL_DEAL_SHARES}
       step={1}
       largeStep={100}
       format={{ maximumFractionDigits: 0 }}
-      disabled={disabled}
       className="flex flex-col gap-2"
     >
       <label htmlFor={id} className="text-sm font-medium">
@@ -385,7 +400,7 @@ const faqs = [
   },
   {
     q: "Where is my share count stored?",
-    a: "Only in your browser's local storage. It never leaves your device.",
+    a: "In a cookie in your browser, so the page can show your numbers as soon as it loads. It's sent to this site with each page request but isn't logged or saved anywhere else.",
   },
 ];
 

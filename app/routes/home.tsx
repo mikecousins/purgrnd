@@ -22,17 +22,12 @@ import {
   formatShares,
 } from "~/lib/format";
 import { getQuote, getUsdCadRate } from "~/lib/quote.server";
+import { shareMeta, SITE_TITLE } from "~/lib/share-meta";
 import { readShares, SHARES_COOKIE_NAME } from "~/lib/shares-cookie.server";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "GRND Share Value" },
-    {
-      name: "description",
-      content: "What your GRND shares from the PurposeMed acquisition are worth today.",
-    },
-  ];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: SITE_TITLE }, ...shareMeta(loaderData.origin)];
 }
 
 export function headers() {
@@ -70,6 +65,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const lockupEnd = lockupEndDate();
 
   return {
+    origin: new URL(request.url).origin,
     shares,
     currency,
     usdCad: rate,

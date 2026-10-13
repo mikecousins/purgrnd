@@ -17,7 +17,8 @@ your numbers filled in; the "what if" slider is its only client-side state.
 Settings also has a theme picker: the default neon **Synthwave** look, or **Paper**, a layered
 paper-cutout tropical beach (sunset sky, layered sea, sand and palms). Picking one previews it
 straight away, and saving stores it in a cookie alongside the others, so the right theme is
-server-rendered on the next visit with no flash.
+server-rendered on the next visit with no flash. Each option shows a screenshot of the dashboard in that
+theme (`public/themes/*.webp`, 480×300); retake them if the dashboard's look changes.
 
 Per-share prices are always in USD. In CAD, the gain/loss is worked out the way Canadian tax does it:
 the cost base is converted at the Bank of Canada USD/CAD rate on the closing date and stays fixed,

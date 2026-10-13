@@ -113,7 +113,7 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
             <legend className="mb-2 text-sm text-dim">Theme</legend>
             <div className="grid grid-cols-2 gap-2">
               {THEMES.map((t) => (
-                <label key={t} className={optionClass}>
+                <label key={t} className={themeOptionClass}>
                   <input
                     type="radio"
                     name="theme"
@@ -121,6 +121,14 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
                     checked={t === theme}
                     onChange={() => setTheme(t)}
                     className="sr-only"
+                  />
+                  {/* The label names the theme, so the screenshot is decorative. */}
+                  <img
+                    src={`/themes/${t}.webp`}
+                    alt=""
+                    width={480}
+                    height={300}
+                    className="aspect-[8/5] w-full rounded-control object-cover"
                   />
                   {THEME_LABELS[t]}
                 </label>
@@ -153,5 +161,11 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
   );
 }
 
-const optionClass =
-  "flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-tick px-3 tracking-[0.2em] text-dim select-none hover:text-ink has-checked:border-neon has-checked:text-neon has-checked:glow has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-up";
+// A radio button styled as a selectable tile.
+const tileClass =
+  "cursor-pointer rounded-control border border-tick tracking-[0.2em] text-dim select-none hover:text-ink has-checked:border-neon has-checked:text-neon has-checked:glow has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-up";
+
+const optionClass = `flex min-h-11 items-center justify-center px-3 ${tileClass}`;
+
+// A theme tile shows a screenshot of the dashboard in that theme, with its name underneath.
+const themeOptionClass = `flex flex-col items-center gap-2 p-1.5 pb-2.5 ${tileClass}`;

@@ -1,19 +1,126 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-void: #07060f;
+  --color-panel: #12101f;
+  --color-line: #2a2540;
+  --color-tick: #3a3358;
+  --color-ink: #ede8ff;
+  --color-dim: #8c86a8;
+  --color-glow: #fff0f8;
+  --color-neon: #ff4fb0;
+  --color-up: #5cf2e8;
+  --color-down: #ff9147;
 }
 
 html,
 body {
-  @apply bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-void font-mono text-ink;
+  color-scheme: dark;
 }
 
 .root {
   isolation: isolate;
+}
+
+/* Corners cut at 45°, the house shape for panels and buttons. */
+.chamfer {
+  clip-path: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
+}
+
+/* A neon-tube glow for the hero number. */
+.neon {
+  text-shadow:
+    0 0 18px rgb(255 79 176 / 0.55),
+    0 0 60px rgb(255 79 176 / 0.55),
+    0 0 120px rgb(255 79 176 / 0.55);
+}
+
+/*
+ * The synthwave floor: a pink grid hinged at the horizon and tilted toward the viewer, scrolling
+ * forward. The perspective's vanishing point is the box's top edge, which the horizon line sits on.
+ */
+.synth-floor {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 28%;
+  overflow: hidden;
+  perspective: 320px;
+  perspective-origin: 50% 0;
+  mask-image: linear-gradient(to bottom, transparent, #000 70%);
+}
+
+.synth-floor::before {
+  content: "";
+  position: absolute;
+  inset-inline: -100%;
+  top: 0;
+  height: 400px;
+  background-image:
+    linear-gradient(rgb(255 79 176 / 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 79 176 / 0.45) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transform-origin: 50% 0;
+  transform: rotateX(75deg);
+  animation: synth-floor 2.4s linear infinite;
+}
+
+@keyframes synth-floor {
+  to {
+    background-position: 0 48px;
+  }
+}
+
+.synth-horizon {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 28%;
+  height: 1px;
+  background: var(--color-neon);
+  opacity: 0.5;
+  box-shadow: 0 0 24px 2px rgb(255 79 176 / 0.6);
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.025) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* The slider track's tick marks. */
+.ticks {
+  background: repeating-linear-gradient(90deg, var(--color-tick) 0 2px, transparent 2px 12px);
+}
+
+.pulse {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .synth-floor::before,
+  .pulse {
+    animation: none;
+  }
 }

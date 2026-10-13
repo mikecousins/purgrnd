@@ -14,6 +14,11 @@ First-time visitors are sent to `/settings` to enter their share count and pick 
 USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely on the server with
 your numbers filled in; the "what if" slider is its only client-side state.
 
+Settings also has a theme picker: the default neon **Synthwave** look, or **Paper**, a layered
+paper-cutout landscape (coral sky, snow-capped mountains, teal hills). Picking one previews it
+straight away, and saving stores it in a cookie alongside the others, so the right theme is
+server-rendered on the next visit with no flash.
+
 Per-share prices are always in USD. In CAD, the gain/loss is worked out the way Canadian tax does it:
 the cost base is converted at the Bank of Canada USD/CAD rate on the closing date and stays fixed,
 while the current value is converted at today's rate (Yahoo Finance). So the CAD gain moves with the

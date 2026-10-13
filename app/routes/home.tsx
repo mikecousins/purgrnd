@@ -2,6 +2,7 @@ import { Slider } from "@base-ui/react/slider";
 import { useState } from "react";
 import { Link, redirect } from "react-router";
 
+import { PaperScenery } from "~/components/paper-scenery";
 import { type Currency } from "~/lib/currency";
 import { CURRENCY_COOKIE_NAME, readCurrency } from "~/lib/currency-cookie.server";
 import {
@@ -24,6 +25,8 @@ import {
 import { getQuote, getUsdCadRate } from "~/lib/quote.server";
 import { shareMeta, SITE_TITLE } from "~/lib/share-meta";
 import { readShares, SHARES_COOKIE_NAME } from "~/lib/shares-cookie.server";
+import { useTheme } from "~/lib/theme";
+import { THEME_COOKIE_NAME } from "~/lib/theme-cookie.server";
 import type { Route } from "./+types/home";
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -34,8 +37,8 @@ export function headers() {
   return {
     "Cache-Control": "public, max-age=0, must-revalidate",
     "Netlify-CDN-Cache-Control": "public, durable, s-maxage=60, stale-while-revalidate=300",
-    // The page is rendered with the visitor's share count and currency, so key the CDN cache on those cookies.
-    "Netlify-Vary": `cookie=${SHARES_COOKIE_NAME}|${CURRENCY_COOKIE_NAME}`,
+    // The page is rendered with the visitor's share count, currency and theme, so key the CDN cache on those cookies.
+    "Netlify-Vary": `cookie=${SHARES_COOKIE_NAME}|${CURRENCY_COOKIE_NAME}|${THEME_COOKIE_NAME}`,
   };
 }
 
@@ -113,6 +116,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     cost,
     gain,
   } = loaderData;
+  const theme = useTheme();
 
   const notes = [
     "Delayed",
@@ -129,9 +133,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
-      <div aria-hidden="true" className="synth-floor" />
-      <div aria-hidden="true" className="synth-horizon" />
-      <div aria-hidden="true" className="scanlines" />
+      {theme === "paper" ? (
+        <PaperScenery />
+      ) : (
+        <>
+          <div aria-hidden="true" className="synth-floor" />
+          <div aria-hidden="true" className="synth-horizon" />
+          <div aria-hidden="true" className="scanlines" />
+        </>
+      )}
 
       <div className="relative z-10 mx-auto flex w-full max-w-360 flex-1 flex-col gap-6 p-[clamp(16px,3vw,40px)]">
         <header className="flex flex-wrap items-center justify-between gap-3">
@@ -283,7 +293,7 @@ function WhatIf({
   const big = "font-display text-[clamp(24px,2.6vw,34px)] font-semibold tabular-nums";
 
   return (
-    <section className="chamfer mx-auto w-full max-w-220 bg-panel/85 px-[clamp(16px,2.4vw,28px)] pt-4 pb-2 backdrop-blur-sm">
+    <section className="chamfer mx-auto w-full max-w-220 bg-panel/(--glass) px-[clamp(16px,2.4vw,28px)] pt-4 pb-2 backdrop-blur-sm">
       <Slider.Root
         value={price}
         onValueChange={(next) => setPrice(next as number)}
@@ -305,7 +315,7 @@ function WhatIf({
               type="button"
               onClick={() => setPrice(livePrice)}
               disabled={price === livePrice}
-              className="min-h-8 border border-tick px-2.5 text-[11px] tracking-[0.2em] text-dim uppercase hover:border-dim hover:text-ink disabled:invisible"
+              className="min-h-8 rounded-control border border-tick px-2.5 text-[11px] tracking-[0.2em] text-dim uppercase hover:border-dim hover:text-ink disabled:invisible"
             >
               Reset
             </button>
@@ -320,7 +330,7 @@ function WhatIf({
         <Slider.Control className="flex w-full touch-none items-center py-4 select-none">
           <Slider.Track className="ticks h-2 w-full border-b border-tick">
             <Slider.Indicator className="bg-neon/25" />
-            <Slider.Thumb className="h-8.5 w-4.5 border-2 border-neon bg-void shadow-[0_0_14px_rgb(255_79_176/0.8)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-up" />
+            <Slider.Thumb className="h-8.5 w-4.5 rounded-control border-2 border-neon bg-void glow-strong has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-up" />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
@@ -330,9 +340,9 @@ function WhatIf({
 
 function Logo() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-      <path d="M11 2 L20 11 L11 20 L2 11 Z" fill="none" stroke="#ff4fb0" strokeWidth="2" />
-      <path d="M11 7 L15 11 L11 15 L7 11 Z" fill="#ff4fb0" />
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" className="text-neon">
+      <path d="M11 2 L20 11 L11 20 L2 11 Z" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M11 7 L15 11 L11 15 L7 11 Z" fill="currentColor" />
     </svg>
   );
 }

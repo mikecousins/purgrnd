@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -7,8 +8,14 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { type Theme, THEME_COLORS, ThemeContext, useSavedTheme } from "~/lib/theme";
+import { readTheme } from "~/lib/theme-cookie.server";
 import type { Route } from "./+types/root";
 import "./app.css";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  return { theme: await readTheme(request) };
+}
 
 export const links: Route.LinksFunction = () => [
   // Browsers that can't use the SVG fall back to the .ico.
@@ -19,22 +26,29 @@ export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Share+Tech+Mono&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=Share+Tech+Mono&display=swap",
   },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const saved = useSavedTheme();
+  // The settings page previews a theme before it's saved.
+  const [preview, setPreview] = useState<Theme | null>(null);
+  const theme = preview ?? saved;
+
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#07060f" />
+        <meta name="theme-color" content={THEME_COLORS[theme]} />
         <Meta />
         <Links />
       </head>
       <body>
-        <div className="root">{children}</div>
+        <ThemeContext value={{ theme, setPreview }}>
+          <div className="root">{children}</div>
+        </ThemeContext>
         <ScrollRestoration />
         <Scripts />
       </body>

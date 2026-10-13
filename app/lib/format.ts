@@ -22,10 +22,23 @@ const pctSigned = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
   signDisplay: "exceptZero",
 });
-const date = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
+const shareCount = new Intl.NumberFormat("en-CA", { maximumFractionDigits: 0 });
+const asOf = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "America/New_York",
+  timeZoneName: "short",
+});
 
 export const formatMoney = (n: number, currency: Currency, signed = false) =>
   (signed ? moneySigned : money)[currency].format(n);
 export const formatRate = (n: number) => rate.format(n);
 export const formatPctSigned = (n: number) => pctSigned.format(n);
-export const formatDate = (d: Date) => date.format(d);
+export const formatShares = (n: number) => shareCount.format(n);
+export const formatAsOf = (epochMs: number) => asOf.format(epochMs);
+
+/** A USD amount shown in `currency`, converted at `usdCad` (CAD per USD) when that's CAD. */
+export const formatUsdAs = (usd: number, currency: Currency, usdCad: number, signed = false) =>
+  currency === "CAD" ? formatMoney(usd * usdCad, "CAD", signed) : formatMoney(usd, "USD", signed);

@@ -168,8 +168,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400">
             Enter the number of Grindr shares you received in the acquisition. Your shares were
-            issued at <Money usd={ISSUE_PRICE_USD} /> each and are locked up for {LOCKUP_MONTHS}{" "}
-            months after closing.
+            issued at {formatMoney(ISSUE_PRICE_USD, "USD")} each and are locked up for{" "}
+            {LOCKUP_MONTHS} months after closing.
           </p>
         </header>
 
@@ -187,26 +187,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <Stat
               label="Original value"
               value={originalValue != null ? <Money usd={originalValue} /> : "—"}
-              hint={
-                <>
-                  at <Money usd={ISSUE_PRICE_USD} />
-                  /share
-                </>
-              }
+              hint={`at ${formatMoney(ISSUE_PRICE_USD, "USD")}/share`}
             />
             <Stat
               label="Current value"
               value={position ? <Money usd={position.currentValue} /> : "—"}
-              hint={
-                livePrice ? (
-                  <>
-                    at <Money usd={livePrice} />
-                    /share
-                  </>
-                ) : (
-                  "price unavailable"
-                )
-              }
+              hint={livePrice ? `at ${formatMoney(livePrice, "USD")}/share` : "price unavailable"}
             />
             <Stat
               label={position && position.gain < 0 ? "Capital loss" : "Capital gain"}
@@ -231,8 +217,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <Faq />
 
         <footer className="text-xs text-neutral-500">
-          Prices are delayed. {TICKER} trades in USD; CAD amounts are converted at the current
-          USD/CAD rate — click any amount to see it in USD. For information only — not financial or
+          Prices are delayed and per-share prices are in USD. CAD totals are converted at the
+          current USD/CAD rate — click one to see it in USD. For information only — not financial or
           tax advice. Your share count and currency are saved in cookies in this browser.
         </footer>
       </main>
@@ -337,7 +323,7 @@ function QuoteBar({
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="font-semibold">{TICKER}</span>
           <span className="text-xl font-semibold tabular-nums">
-            <Money usd={quote.price} />
+            {formatMoney(quote.price, "USD")}
           </span>
           {dayChange != null && (
             <span className={`text-sm tabular-nums ${toneClass(Math.sign(dayChange))}`}>
@@ -415,7 +401,7 @@ function Stat({
 }: {
   label: string;
   value: React.ReactNode;
-  hint: React.ReactNode;
+  hint: string;
   tone?: number;
 }) {
   return (
@@ -457,7 +443,7 @@ function WhatIf({
         <div className="flex items-baseline justify-between gap-4">
           <Slider.Label className="text-sm font-medium">What if {TICKER} were at…</Slider.Label>
           <Slider.Value className="text-lg font-semibold tabular-nums">
-            {(_, [value]) => <Money usd={value} />}
+            {(_, [value]) => formatMoney(value, "USD")}
           </Slider.Value>
         </div>
         <Slider.Control className="flex w-full touch-none items-center py-2 select-none">

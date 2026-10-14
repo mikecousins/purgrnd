@@ -13,6 +13,12 @@ export const SEC_FILING_URL =
 /** The day the deal closed (YYYY-MM-DD), or null while it's still pending. */
 export const CLOSING_DATE: string | null = null;
 
+/** Our best guess at the closing date, used for the lock-up countdown until CLOSING_DATE is set. */
+export const ESTIMATED_CLOSING_DATE = "2026-11-01";
+
+/** True while the lock-up end is worked out from ESTIMATED_CLOSING_DATE. */
+export const LOCKUP_END_IS_ESTIMATE = CLOSING_DATE == null;
+
 /**
  * Bank of Canada USD/CAD rate on CLOSING_DATE (CAD per USD), or null while the deal is pending.
  * It fixes each share's Canadian cost base at ISSUE_PRICE_USD × this rate for good.
@@ -23,12 +29,29 @@ export const CLOSING_USD_CAD: number | null = null;
 /** The shares are locked up for 12 months after closing. */
 export const LOCKUP_MONTHS = 12;
 
-/** The first day the shares can be sold, or null while the deal is pending. */
-export function lockupEndDate(): Date | null {
-  if (CLOSING_DATE == null) return null;
-  const date = new Date(`${CLOSING_DATE}T00:00:00Z`);
+/** The first day the shares can be sold (estimated while the deal is pending). */
+export function lockupEndDate(): Date {
+  const date = new Date(`${CLOSING_DATE ?? ESTIMATED_CLOSING_DATE}T00:00:00Z`);
   date.setUTCMonth(date.getUTCMonth() + LOCKUP_MONTHS);
   return date;
+}
+
+/** GRND trades on the NYSE, so the lock-up ends at midnight New York time. */
+const MARKET_TIME_ZONE = "America/New_York";
+
+/** The moment the shares can be sold (epoch ms; estimated while the deal is pending). */
+export function lockupEndTime(): number {
+  const date = lockupEndDate();
+  // New York's UTC offset that night, e.g. "GMT-04:00".
+  const offset = new Intl.DateTimeFormat("en-US", {
+    timeZone: MARKET_TIME_ZONE,
+    timeZoneName: "longOffset",
+  })
+    .formatToParts(date)
+    .find((part) => part.type === "timeZoneName")?.value;
+  const [, sign = "+", hours = "0", minutes = "0"] = /([+-])(\d+):(\d+)/.exec(offset ?? "") ?? [];
+  const offsetMs = (Number(hours) * 60 + Number(minutes)) * 60_000 * (sign === "-" ? -1 : 1);
+  return date.getTime() - offsetMs;
 }
 
 export type Position = {

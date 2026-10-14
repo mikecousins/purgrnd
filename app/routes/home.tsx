@@ -11,8 +11,8 @@ import {
   CLOSING_USD_CAD,
   ISSUE_PRICE_USD,
   lockupEndDate,
+  LOCKUP_END_IS_ESTIMATE,
   lockupEndTime,
-  LOCKUP_MONTHS,
   SEC_FILING_URL,
   TICKER,
 } from "~/lib/deal";
@@ -77,7 +77,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     usdCad: rate,
     costRate,
     closed: CLOSING_DATE != null && CLOSING_USD_CAD != null,
-    lockupEnd: lockupEnd && formatDate(lockupEnd),
+    lockupEnd: formatDate(lockupEnd),
+    lockupEndIsEstimate: LOCKUP_END_IS_ESTIMATE,
     lockupEndTime: lockupEndTime(),
     renderedAt: Date.now(),
     cadUnavailable: savedCurrency === "CAD" && usdCad == null,
@@ -114,6 +115,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     costRate,
     closed,
     lockupEnd,
+    lockupEndIsEstimate,
     lockupEndTime,
     renderedAt,
     cadUnavailable,
@@ -133,7 +135,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {formatMoney(ISSUE_PRICE_USD, "USD")}/sh
       </a>
     </>,
-    lockupEnd && `Lock-up ends ${lockupEnd}`,
+    `Lock-up ends ${lockupEnd}${lockupEndIsEstimate ? " (est.)" : ""}`,
     cadUnavailable && "No USD/CAD rate, showing USD",
     "Not advice",
   ].filter(Boolean);
@@ -158,7 +160,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </p>
           {/* On a phone the countdown and ticker drop to their own row, under the logo and settings. */}
           <div className="flex flex-wrap gap-3 max-sm:order-last max-sm:basis-full">
-            <LockupCountdown endsAt={lockupEndTime} endDate={lockupEnd} renderedAt={renderedAt} />
+            <LockupCountdown
+              endsAt={lockupEndTime}
+              endDate={lockupEnd}
+              estimate={lockupEndIsEstimate}
+              renderedAt={renderedAt}
+            />
             {quote ? (
               <p
                 title={`As of ${quote.asOf} · Yahoo Finance`}
@@ -278,16 +285,17 @@ function Stat({
 function LockupCountdown({
   endsAt,
   endDate,
+  estimate,
   renderedAt,
 }: {
-  endsAt: number | null;
-  endDate: string | null;
+  endsAt: number;
+  endDate: string;
+  estimate: boolean;
   renderedAt: number;
 }) {
   // Start from the server's clock so hydration matches, then tick with the browser's.
   const [now, setNow] = useState(renderedAt);
   useEffect(() => {
-    if (endsAt == null) return;
     const tick = () => setNow(Date.now());
     tick();
     const id = setInterval(tick, 1000);
@@ -296,20 +304,23 @@ function LockupCountdown({
 
   const pill = "chamfer flex h-11 items-center gap-3 bg-panel px-4 text-sm tracking-wider";
 
-  if (endsAt == null) {
-    return (
-      <p className={`${pill} text-dim uppercase`}>Sellable {LOCKUP_MONTHS} mo after closing</p>
-    );
-  }
   if (now >= endsAt) {
     return <p className={`${pill} text-up uppercase`}>Lock-up over · sellable now</p>;
   }
   return (
-    <p title={`Lock-up ends ${endDate}`} className={pill}>
+    <p
+      title={
+        estimate
+          ? `Lock-up ends ${endDate}, if the deal closes on the estimated date`
+          : `Lock-up ends ${endDate}`
+      }
+      className={pill}
+    >
       <span className="text-dim uppercase">Sellable in</span>
       <span className="font-display text-[17px] font-semibold text-neon tabular-nums">
         {formatCountdown(endsAt - now)}
       </span>
+      {estimate && <span className="text-dim uppercase">est.</span>}
     </p>
   );
 }

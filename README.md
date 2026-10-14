@@ -43,8 +43,8 @@ pnpm build
 
 Deal constants live in `app/lib/deal.ts`. When the deal closes, set `CLOSING_DATE` and
 `CLOSING_USD_CAD` (the [Bank of Canada rate](https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/)
-for that day). Until then, the CAD cost base is estimated at today's rate, the lock-up end date
-isn't shown, and the countdown just says the shares are sellable 12 months after closing.
+for that day). Until then, the CAD cost base is estimated at today's rate, and the lock-up countdown
+runs from `ESTIMATED_CLOSING_DATE` and is marked "est.".
 
 ## Deploying to Netlify
 

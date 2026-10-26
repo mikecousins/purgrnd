@@ -26,7 +26,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=Share+Tech+Mono&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Lilita+One&family=Nunito:wght@600;700;800;900&family=Share+Tech+Mono&display=swap",
   },
 ];
 

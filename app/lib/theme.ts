@@ -3,7 +3,7 @@ import { useRouteLoaderData } from "react-router";
 
 import type { loader as rootLoader } from "~/root";
 
-export const THEMES = ["synth", "paper"] as const;
+export const THEMES = ["synth", "paper", "coaster"] as const;
 
 export type Theme = (typeof THEMES)[number];
 
@@ -12,12 +12,14 @@ export const DEFAULT_THEME: Theme = "synth";
 export const THEME_LABELS: Record<Theme, string> = {
   synth: "Synthwave",
   paper: "Paper",
+  coaster: "Rollercoaster",
 };
 
 /** The browser chrome colour for each theme, to match its page background. */
 export const THEME_COLORS: Record<Theme, string> = {
   synth: "#07060f",
   paper: "#ff9a85",
+  coaster: "#090b22",
 };
 
 export function parseTheme(value: unknown): Theme {

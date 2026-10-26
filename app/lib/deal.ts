@@ -14,7 +14,7 @@ export const SEC_FILING_URL =
 export const CLOSING_DATE: string | null = null;
 
 /** Our best guess at the closing date, used for the lock-up countdown until CLOSING_DATE is set. */
-export const ESTIMATED_CLOSING_DATE = "2026-11-01";
+export const ESTIMATED_CLOSING_DATE = "2026-11-02";
 
 /** True while the lock-up end is worked out from ESTIMATED_CLOSING_DATE. */
 export const LOCKUP_END_IS_ESTIMATE = CLOSING_DATE == null;

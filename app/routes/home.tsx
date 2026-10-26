@@ -2,6 +2,7 @@ import { Slider } from "@base-ui/react/slider";
 import { useEffect, useState } from "react";
 import { Link, redirect } from "react-router";
 
+import { CoasterRide } from "~/components/coaster-ride";
 import { PaperScenery } from "~/components/paper-scenery";
 import { type Currency } from "~/lib/currency";
 import { CURRENCY_COOKIE_NAME, readCurrency } from "~/lib/currency-cookie.server";
@@ -144,6 +145,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
       {theme === "paper" ? (
         <PaperScenery />
+      ) : theme === "coaster" ? (
+        <CoasterRide />
       ) : (
         <>
           <div aria-hidden="true" className="synth-floor" />

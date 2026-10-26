@@ -16,8 +16,11 @@ First-time visitors are sent to `/settings` to enter their share count and pick 
 USD). Both are saved in HTTP-only cookies, so the dashboard is rendered entirely on the server with
 your numbers filled in; the "what if" slider is its only client-side state.
 
-Settings also has a theme picker: the default neon **Synthwave** look, or **Paper**, a layered
-paper-cutout tropical beach (sunset sky, layered sea, sand and palms). Picking one previews it
+Settings also has a theme picker: the default neon **Synthwave** look; **Paper**, a layered
+paper-cutout tropical beach (sunset sky, layered sea, sand and palms); or **Rollercoaster**, a
+first-person ride at dusk along a track that climbs and crashes like a volatile stock (green rails on
+the way up, red on the way down), under a candlestick-chart skyline. The ride is drawn on a canvas
+(`app/components/coaster-ride.tsx`) and holds still for visitors who prefer reduced motion. Picking one previews it
 straight away, and saving stores it in a cookie alongside the others, so the right theme is
 server-rendered on the next visit with no flash. Each option shows a screenshot of the dashboard in that
 theme (`public/themes/*.webp`, 480×300); retake them if the dashboard's look changes.

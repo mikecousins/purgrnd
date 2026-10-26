@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { data, Form, Link, redirect, useNavigation } from "react-router";
 
+import { CoasterRide } from "~/components/coaster-ride";
 import { PaperScenery } from "~/components/paper-scenery";
 import { CURRENCIES, parseCurrency } from "~/lib/currency";
 import { readCurrency, writeCurrency } from "~/lib/currency-cookie.server";
@@ -58,6 +59,7 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
     <div className="relative min-h-dvh overflow-hidden">
       {/* No beach here: it'd run behind the note under the form. */}
       {theme === "paper" && <PaperScenery beach={false} />}
+      {theme === "coaster" && <CoasterRide />}
       <main className="relative z-10 mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-8 px-4 py-10">
         <header className="flex flex-col gap-2">
           <p className="text-sm tracking-[0.32em] text-neon uppercase">PurposeMed × Grindr</p>
@@ -111,7 +113,7 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
 
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 text-sm text-dim">Theme</legend>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {THEMES.map((t) => (
                 <label key={t} className={themeOptionClass}>
                   <input
@@ -130,7 +132,7 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
                     height={300}
                     className="aspect-[8/5] w-full rounded-control object-cover"
                   />
-                  {THEME_LABELS[t]}
+                  <span className="text-xs tracking-[0.12em]">{THEME_LABELS[t]}</span>
                 </label>
               ))}
             </div>

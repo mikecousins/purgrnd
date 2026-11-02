@@ -11,7 +11,7 @@ export const SEC_FILING_URL =
   "https://www.sec.gov/Archives/edgar/data/0001820144/000182014426000033/grnd-20260930.htm";
 
 /** The day the deal closed (YYYY-MM-DD), or null while it's still pending. */
-export const CLOSING_DATE: string | null = null;
+export const CLOSING_DATE: string | null = "2026-11-02";
 
 /** Our best guess at the closing date, used for the lock-up countdown until CLOSING_DATE is set. */
 export const ESTIMATED_CLOSING_DATE = "2026-11-02";
@@ -24,7 +24,7 @@ export const LOCKUP_END_IS_ESTIMATE = CLOSING_DATE == null;
  * It fixes each share's Canadian cost base at ISSUE_PRICE_USD × this rate for good.
  * https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/
  */
-export const CLOSING_USD_CAD: number | null = null;
+export const CLOSING_USD_CAD: number | null = 1.3978;
 
 /** The shares are locked up for 12 months after closing. */
 export const LOCKUP_MONTHS = 12;
